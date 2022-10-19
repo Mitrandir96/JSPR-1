@@ -6,13 +6,19 @@ import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.net.http.HttpClient;
+import java.nio.charset.StandardCharsets;
+import java.util.Dictionary;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 
+
 public class Server {
+
+
 
     ConcurrentHashMap<String, ConcurrentHashMap<String, Handler>> handlers = new ConcurrentHashMap<>();
 
@@ -33,7 +39,7 @@ public class Server {
                 executorService.submit(() -> requestProcess(socket));
             }
         } catch (Exception e) {
-                handle(e);
+            handle(e);
         }
     }
 
@@ -52,7 +58,10 @@ public class Server {
                 return;
             }
 
-            final var request = new Request(parts[0], parts[1]);
+            final var request = Request.createRequest(parts[0], parts[1]);
+//            System.out.println(request.getQueryParam("id"));
+            System.out.println(request.getQueryParams());
+            System.out.println(request.getQueryParam("id"));
 
             if(!handlers.containsKey(request.getMethod())) {
                 notFound(out);
