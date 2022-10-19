@@ -7,6 +7,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.http.HttpClient;
+import java.nio.charset.StandardCharsets;
 import java.util.Dictionary;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -58,8 +59,9 @@ public class Server {
             }
 
             final var request = Request.createRequest(parts[0], parts[1]);
-            System.out.println(request.getQueryParam("id"));
+//            System.out.println(request.getQueryParam("id"));
             System.out.println(request.getQueryParams());
+            System.out.println(request.getQueryParam("id"));
 
             if(!handlers.containsKey(request.getMethod())) {
                 notFound(out);

@@ -1,23 +1,28 @@
 package org.example;
 
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URLEncodedUtils;
+
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
 public class Request {
 
-    private final Map<String, List<String>> query;
-
-
     private final String method;
-
     private String path;
+    private final String url;
+    private List<NameValuePair> queryParams;
 
-    public Request(String method) {
+
+    public Request(String method, String url) {
         this.method = method;
-        this.query = new HashMap<>();
+        this.url = url;
     }
 
     public String getMethod() {
@@ -29,16 +34,23 @@ public class Request {
     }
 
     public String getQueryParam(String name) {
-        var list = this.query.get(name);
-        return list.toString();
+        var builder = new StringBuilder();
+        for (NameValuePair pair : this.queryParams) {
+            if (pair.getName().equals(name)) {
+                builder.append(pair + " ");
+            }
+
+        }
+        return builder.toString();
+
     }
 
     public String getQueryParams() {
-        return this.query.toString();
+        return this.queryParams.toString();
     }
 
     public static Request createRequest(String method, String url) {
-        Request req = new Request(method);
+        Request req = new Request(method, url);
         req.parsePath(url);
         req.parseQuery(url);
         return req;
@@ -50,22 +62,17 @@ public class Request {
             return;
         }
         var splittedPath = url.split("\\?")[1];
-        var query = splittedPath.split("#")[0];
-        var parameters = query.split("&");
-        for (int i = 0; i < parameters.length; i++) {
-            var keyValue = parameters[i].split("=");
-            if (this.query.containsKey(keyValue[0])) {
-                this.query.get(keyValue[0]).add(keyValue[1]);
-            } else {
-                List<String> list = new ArrayList<>();
-                list.add(keyValue[1]);
-                this.query.put(keyValue[0], list);
-            }
-        }
+        var unparsedQuery = splittedPath.split("#")[0];
+        this.queryParams = URLEncodedUtils.parse(unparsedQuery, StandardCharsets.UTF_8);
     }
 
     private void parsePath(String url) {
         var splittedPath = url.split("\\?")[0];
         this.path = splittedPath;
+
+
     }
+
+
+
 }
